@@ -2,18 +2,16 @@ name: Update XML Daily
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Всеки ден в 00:00 UTC
-  workflow_dispatch:      # Ръчно стартиране
+    - cron: '0 0 * * *'  # Изпълнение всеки ден в 00:00 UTC (03:00 българско време)
+  workflow_dispatch:  # Позволява и ръчно стартиране
 
 jobs:
   update-xml:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          persist-credentials: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -24,24 +22,26 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-        working-directory: ./proba2
 
-      - name: Run filstar scripts
-        run: |
-          python filstar_checker.py
-          python filstar_converter.py
-        working-directory: ./proba2
+      - name: Run filstar_checker.py
+        run: python filstar_checker.py
+        env:
+          GITHUB_ACTIONS: true
 
-      - name: Show generated files
+      - name: Run filstar_converter.py
+        run: python filstar_converter.py
+        env:
+          GITHUB_ACTIONS: true
+
+      - name: List generated files
         run: ls -lh
-        working-directory: ./proba2
 
-      - name: Commit and Push changes
+      - name: Commit and push generated files
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add proba2/*.csv proba2/*.xml
-          git commit -m "Daily auto-update XML and CSV [skip ci]" || echo "No changes to commit"
+          git add *.csv *.xml
+          git commit -m "✅ Daily update: CSV and XML files [skip ci]" || echo "No changes to commit"
           git push
