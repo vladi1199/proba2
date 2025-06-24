@@ -2,8 +2,8 @@ name: Update XML Daily
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # runs every day at midnight UTC
-  workflow_dispatch:    # manual trigger option
+    - cron: '0 0 * * *'
+  workflow_dispatch:
 
 jobs:
   update-xml:
@@ -13,7 +13,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          persist-credentials: true  # needed to push changes
+          persist-credentials: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -24,14 +24,17 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
+        working-directory: ./proba2/proba2
 
       - name: Run filstar scripts
         run: |
           python filstar_checker.py
           python filstar_converter.py
+        working-directory: ./proba2/proba2
 
       - name: List generated XML and CSV files
         run: ls -lh *.xml *.csv || echo "No XML or CSV files found"
+        working-directory: ./proba2/proba2
 
       - name: Commit and Push changes
         env:
@@ -42,3 +45,4 @@ jobs:
           git add *.xml *.csv
           git commit -m "Daily auto-update XML and CSV [skip ci]" || echo "No changes to commit"
           git push
+        working-directory: ./proba2/proba2
