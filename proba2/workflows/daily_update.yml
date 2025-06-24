@@ -2,8 +2,8 @@ name: Update XML Daily
 
 on:
   schedule:
-    - cron: '0 0 * * *' # runs every day at midnight UTC
-  workflow_dispatch:
+    - cron: '0 0 * * *'  # всеки ден в 00:00 UTC
+  workflow_dispatch:      # опция за ръчно стартиране
 
 jobs:
   update-xml:
@@ -12,6 +12,10 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Set working directory
+        run: echo "Using working directory"
+        working-directory: ./proba2/proba2
 
       - name: Set up Python
         uses: actions/setup-python@v5
