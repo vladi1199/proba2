@@ -11,11 +11,9 @@ from dotenv import load_dotenv
 # Зареждаме променливите от .env файл
 load_dotenv()
 
-# Определяме базовия път в зависимост от средата
-if os.getenv('GITHUB_ACTIONS') == 'true':
-    base_path = os.getcwd()
-else:
-    base_path = '/Users/vladimir/Desktop/Python/Филстар'
+# Откриване на base_path спрямо локацията на текущия файл
+base_path = os.path.dirname(os.path.abspath(__file__))
+
 
 # Конфигурация на драйвъра
 def create_driver():
