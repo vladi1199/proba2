@@ -2,47 +2,45 @@ name: Update XML Daily
 
 on:
   schedule:
-    - cron: '0 0 * * *'
-  workflow_dispatch:
+    - cron: '0 0 * * *'  # всеки ден в полунощ UTC
+  workflow_dispatch:      # опция за ръчно стартиране
 
 jobs:
   update-xml:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          persist-credentials: true
 
-      - name: Set up Python
+      - name: List root files
+        run: ls -l
+
+      - name: List proba2 files
+        run: ls -l proba2
+
+      - name: Set up Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Upgrade pip and install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-        working-directory: ./proba2/proba2
+        working-directory: proba2
 
       - name: Run filstar scripts
         run: |
           python filstar_checker.py
           python filstar_converter.py
-        working-directory: ./proba2/proba2
+        working-directory: proba2
 
       - name: List generated XML and CSV files
         run: ls -lh *.xml *.csv || echo "No XML or CSV files found"
-        working-directory: ./proba2/proba2
+        working-directory: proba2
 
       - name: Commit and Push changes
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add *.xml *.csv
-          git commit -m "Daily auto-update XML and CSV [skip ci]" || echo "No changes to commit"
-          git push
-        working-directory: ./proba2/proba2
+        run:
